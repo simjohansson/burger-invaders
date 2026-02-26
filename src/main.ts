@@ -501,6 +501,7 @@ function startBossFight(): void {
   bossDirection = 1;
   bossBullets = [];
   enemies = [];
+  enemyBullets = []; // Clear enemy bullets when boss appears
 
   document.getElementById('bossName')!.textContent = currentBoss.name;
   document.getElementById('bossName')!.style.display = 'block';
@@ -522,6 +523,7 @@ function endBossFight(): void {
 
   wave++;
   enemySpeed += 0.3;
+  enemyBullets = []; // Clear bullets between waves
   createEnemies();
   showWaveMsg('WAVE ' + wave);
 }
