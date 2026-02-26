@@ -123,11 +123,21 @@ updateHighScoreDisplays();
 function drawPlayer(): void {
   const x = player._x;
   const y = player._y;
+  
+  // Damage level (0 = full health, 1 = no health)
+  const damageLevel = (3 - lives) / 3;
+  
+  // Flicker when critically damaged
+  if (lives === 1 && Math.random() > 0.7) {
+    return; // Skip drawing every few frames for flicker effect
+  }
 
-  // Engine glow
-  const glowSize = 8 + Math.random() * 4;
+  // Engine glow - gets weaker with damage
+  const engineStrength = 1 - damageLevel * 0.7;
+  const glowSize = (8 + Math.random() * 4) * engineStrength;
+  const glowColor = damageLevel > 0.5 ? 'rgba(255, 100, 50, 0.8)' : 'rgba(0, 255, 136, 0.8)';
   const gradient = ctx.createRadialGradient(scale(x + 25), scale(y + 45), 0, scale(x + 25), scale(y + 45), scale(glowSize));
-  gradient.addColorStop(0, 'rgba(0, 255, 136, 0.8)');
+  gradient.addColorStop(0, glowColor);
   gradient.addColorStop(0.5, 'rgba(255, 107, 53, 0.4)');
   gradient.addColorStop(1, 'rgba(255, 107, 53, 0)');
   ctx.fillStyle = gradient;
@@ -135,8 +145,9 @@ function drawPlayer(): void {
   ctx.arc(scale(x + 25), scale(y + 45), scale(glowSize), 0, Math.PI * 2);
   ctx.fill();
 
-  // Main body
-  ctx.fillStyle = '#1a1a2e';
+  // Main body - changes color based on damage
+  const bodyColor = damageLevel > 0.6 ? '#4a2a2a' : damageLevel > 0.3 ? '#2a2a3e' : '#1a1a2e';
+  ctx.fillStyle = bodyColor;
   ctx.beginPath();
   ctx.moveTo(scale(x + 25), scale(y));
   ctx.lineTo(scale(x + 40), scale(y + 30));
@@ -148,9 +159,32 @@ function drawPlayer(): void {
   ctx.lineTo(scale(x + 10), scale(y + 30));
   ctx.closePath();
   ctx.fill();
+  
+  // Damage cracks/scratches
+  if (damageLevel > 0.3) {
+    ctx.strokeStyle = '#ff4444';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(scale(x + 20), scale(y + 10));
+    ctx.lineTo(scale(x + 25), scale(y + 20));
+    ctx.lineTo(scale(x + 22), scale(y + 28));
+    ctx.stroke();
+  }
+  if (damageLevel > 0.6) {
+    ctx.beginPath();
+    ctx.moveTo(scale(x + 35), scale(y + 15));
+    ctx.lineTo(scale(x + 30), scale(y + 25));
+    ctx.stroke();
+    // Additional damage
+    ctx.beginPath();
+    ctx.moveTo(scale(x + 15), scale(y + 20));
+    ctx.lineTo(scale(x + 18), scale(y + 30));
+    ctx.stroke();
+  }
 
-  // Cockpit
-  ctx.fillStyle = '#00ff88';
+  // Cockpit - turns red when damaged
+  const cockpitColor = damageLevel > 0.5 ? '#ff4444' : damageLevel > 0.2 ? '#44ff44' : '#00ff88';
+  ctx.fillStyle = cockpitColor;
   ctx.beginPath();
   ctx.ellipse(scale(x + 25), scale(y + 15), scale(6), scale(10), 0, 0, Math.PI * 2);
   ctx.fill();
@@ -159,26 +193,52 @@ function drawPlayer(): void {
   ctx.ellipse(scale(x + 23), scale(y + 12), scale(2), scale(4), -0.3, 0, Math.PI * 2);
   ctx.fill();
 
-  // Wing accents
-  ctx.fillStyle = '#00ff88';
+  // Wing accents - turn red when damaged
+  const accentColor = damageLevel > 0.4 ? '#ff4444' : '#00ff88';
+  ctx.fillStyle = accentColor;
   ctx.fillRect(scale(x + 12), scale(y + 32), scale(4), scale(2));
   ctx.fillRect(scale(x + 34), scale(y + 32), scale(4), scale(2));
 
-  // Missile launchers
-  ctx.fillStyle = '#333';
+  // Missile launchers - damaged look
+  ctx.fillStyle = damageLevel > 0.5 ? '#222' : '#333';
   ctx.fillRect(scale(x + 8), scale(y + 25), scale(6), scale(15));
   ctx.fillRect(scale(x + 36), scale(y + 25), scale(6), scale(15));
 
   // Launcher tips
-  ctx.fillStyle = '#555';
+  ctx.fillStyle = damageLevel > 0.3 ? '#444' : '#555';
   ctx.fillRect(scale(x + 8), scale(y + 23), scale(6), scale(3));
   ctx.fillRect(scale(x + 36), scale(y + 23), scale(6), scale(3));
 
-  // Energy cells (pulsing)
-  const pulse = Math.sin(Date.now() / 100) * 0.3 + 0.7;
-  ctx.fillStyle = `rgba(0, 255, 255, ${pulse})`;
+  // Energy cells - weaker when damaged
+  const energyStrength = damageLevel > 0.6 ? 0.3 : damageLevel > 0.3 ? 0.5 : 1;
+  const pulse = Math.sin(Date.now() / 100) * 0.3 * energyStrength + energyStrength * 0.7;
+  const energyColor = damageLevel > 0.5 ? `rgba(255, 100, 50, ${pulse})` : `rgba(0, 255, 255, ${pulse})`;
+  ctx.fillStyle = energyColor;
   ctx.fillRect(scale(x + 9), scale(y + 27), scale(4), scale(10));
   ctx.fillRect(scale(x + 37), scale(y + 27), scale(4), scale(10));
+  
+  // Smoke particles when damaged
+  if (damageLevel > 0.3) {
+    for (let i = 0; i < Math.floor(damageLevel * 4); i++) {
+      const smokeX = scale(x + 15 + Math.random() * 20);
+      const smokeY = scale(y + 10 + Math.random() * 20);
+      const smokeSize = scale(2 + Math.random() * 3);
+      ctx.fillStyle = `rgba(100, 100, 100, ${0.3 + Math.random() * 0.3})`;
+      ctx.beginPath();
+      ctx.arc(smokeX, smokeY, smokeSize, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  
+  // Sparks when very damaged
+  if (damageLevel > 0.6 && Math.random() > 0.8) {
+    const sparkX = scale(x + 10 + Math.random() * 30);
+    const sparkY = scale(y + 15 + Math.random() * 15);
+    ctx.fillStyle = '#ffff00';
+    ctx.beginPath();
+    ctx.arc(sparkX, sparkY, scale(2), 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
 
 function drawEnemy(x: number, y: number, type: number): void {
