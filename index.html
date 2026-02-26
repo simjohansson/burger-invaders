@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Burger Invaders</title>
+</head>
+<body>
+  <div id="gameContainer">
+    <canvas id="game"></canvas>
+    <div id="ui">
+      <span>SCORE: <span id="score">0</span></span>
+      <span>LIVES: <span id="lives">3</span></span>
+    </div>
+    <div id="bossName">BOSS</div>
+    <div id="bossHealthBar"><div id="bossHealthFill"></div></div>
+    <div id="waveMsg"></div>
+    <div id="startScreen">
+      <h1>🍔 BURGER INVADERS 🍔</h1>
+      <p>Defend Earth from the invading burgers!</p>
+      <p>← → to move | SPACE to shoot</p>
+      <p class="touchOnly">📱 Tap left/right to move</p>
+      <p class="touchOnly">📱 Hold to auto-shoot</p>
+      <p style="color: #ffd700; margin-top: 10px;">🏆 High Score: <span id="highScoreStart">0</span></p>
+      <button class="btn" id="startBtn">START</button>
+    </div>
+    <div id="gameOverScreen" class="hidden">
+      <h1>GAME OVER</h1>
+      <p>Final Score: <span id="finalScore">0</span></p>
+      <p>High Score: <span id="highScoreDisplay">0</span></p>
+      <p id="newHighScoreMsg" class="hidden" style="color: #ffd700; font-size: clamp(16px, 4vw, 20px);">🌟 NEW HIGH SCORE! 🌟</p>
+      <button class="btn" id="retryBtn">RETRY</button>
+    </div>
+    <div id="touchHint" class="touchOnly">📱 Tap sides to move • Hold to shoot</div>
+    <div id="touchLeft"></div>
+    <div id="touchRight"></div>
+    <div id="powerupMsg"></div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
